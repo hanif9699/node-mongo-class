@@ -6,8 +6,13 @@ export class Routes {
     private userController: UserController = new UserController()
     private postController: PostController = new PostController()
     public routes(app: Application): void {
-        app.get('/', this.userController.getRoot)
+        // console.log(this,'toute')
+        app.get('/',
+            this.userController.getRoot.bind(this.userController)
+        )
         app.post('/post', this.postController.createPost)
+        app.post('/v1/auth/register', this.userController.registerUser.bind(this.userController))
+        app.post('/v1/auth/login', this.userController.loginUser.bind(this.userController))
     }
 
 }
