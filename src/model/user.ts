@@ -9,13 +9,13 @@ export class User {
     public id?: ObjectId;
     public createdAt: Date;
     public updatedAt: Date;
-    constructor({ name, password, mobile_no, emailId, id }: { name: string, password: string, mobile_no: number, emailId: string, id?: ObjectId }) {
+    constructor({ name, password, mobile_no, emailId, _id }: { name: string, password: string, mobile_no: number, emailId: string, _id?: ObjectId }) {
         this.name = name;
         this.password = password;
         this.mobile_no = mobile_no;
         this.emailId = emailId;
-        if (id) {
-            this.id = id;
+        if (_id) {
+            this.id = _id;
         }
         this.updatedAt = new Date();
         this.createdAt = new Date()

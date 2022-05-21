@@ -41,7 +41,6 @@ export class UserController {
                     error: response.error
                 })
             }
-
         }
     }
     public async loginUser(req: Request, res: Response, next: NextFunction) {
