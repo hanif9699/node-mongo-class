@@ -15,7 +15,7 @@ export class User {
         this.mobile_no = mobile_no;
         this.emailId = emailId;
         if (_id) {
-            this.id = _id;
+            this.id = new ObjectId(_id);
         }
         this.updatedAt = new Date();
         this.createdAt = new Date()

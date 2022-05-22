@@ -4,6 +4,7 @@ import express from "express";
 import { Routes } from './routes';
 import dotenv from 'dotenv'
 import { MongodbInstance } from './db/db'
+import { RedisdbInstance } from "./db/redis";
 
 class App {
 
@@ -15,6 +16,7 @@ class App {
         this.config();
         this.routePrv.routes(this.app);
         MongodbInstance.getInstance()
+        RedisdbInstance.getInstance()
     }
 
     private config(): void {

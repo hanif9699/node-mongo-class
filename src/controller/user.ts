@@ -8,9 +8,14 @@ export class UserController {
     private userService: UserService = new UserService()
     private jwtService: JwtService = new JwtService()
     public getRoot(req: Request, res: Response, next: NextFunction) {
-        console.log(this)
+        // console.log(this)
         res.status(200)
         res.send("Sent from controller")
+    }
+    public protectedFunction(req: Request, res: Response, next: NextFunction) {
+        // console.log(this)
+        res.status(200)
+        res.send("Sent from protected controller")
     }
     public async registerUser(req: Request, res: Response, next: NextFunction) {
         // console.log(this)

@@ -5,8 +5,6 @@ export class JwtService {
     public async createToken(user: { id: ObjectId }) {
         const db = (await MongodbInstance.getInstance()).db
         const tokenCollection = await db?.collection('token')
-        // console.log(process.env.tokenSecret)
-        // console.log(user.id)
         const token = await jwt.sign({
             userId: user.id
         }, process.env.tokenSecret as string, {
@@ -25,13 +23,10 @@ export class JwtService {
         try {
             const decoded = await jwt.verify(token, process.env.tokenSecret as string) as any
             if (decoded) {
-                console.log('decode', decoded.userId)
                 const userCollection = await db?.collection('users')
                 const findUser = await userCollection?.find({ _id: new ObjectId(decoded.userId) }).toArray()
-                console.log(findUser)
                 if (findUser && findUser.length > 0) {
                     const findTokenRecord = await tokenCollection?.find({ token, userId: new ObjectId(decoded.userId) }).toArray()
-                    console.log(findTokenRecord)
                     if (findTokenRecord && findTokenRecord.length > 0) {
                         const expiry = findTokenRecord[0].expiry
                         const currentTime = new Date().getTime()
@@ -46,7 +41,6 @@ export class JwtService {
                                     updatedAt: new Date()
                                 }
                             })
-                            console.log('hi')
                             return { sucess: true, error: '', decoded: decoded.userId }
                         }
                     } else {
