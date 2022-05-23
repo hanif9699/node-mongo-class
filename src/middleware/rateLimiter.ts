@@ -6,7 +6,7 @@ export class RateLimiter {
         const client = (await RedisdbInstance.getInstance()).client
         let limiterKey = req.socket.remoteAddress;
         let value = await client?.get(limiterKey as string)
-        // console.log(value)
+        console.log(value)
         if (value && Number(value) > 100) {
             res.send({
                 message: 'Exceeded Limit'
@@ -14,9 +14,10 @@ export class RateLimiter {
         } else {
             await client?.INCR(limiterKey as string)
             await client?.expire(limiterKey as string, 59)
-            res.send({
-                message: "Suceess"
-            })
+            // res.send({
+            //     message: "Suceess"
+            // })
+            next()
         }
 
         // next()

@@ -31,6 +31,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.6.0",
     "redis": "^4.1.0",
-    "rxjs": "^7.5.5"
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.5",
+    "typedi": "^0.10.0"
   }
 }
