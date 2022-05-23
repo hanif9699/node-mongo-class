@@ -1,7 +1,9 @@
 import { ObjectId } from "mongodb";
+import { Service } from "typedi";
 import { MongodbInstance } from "../db/db";
 import { User } from "../model/user";
 
+@Service()
 export class UserService {
     public async createUser(user: { name: string, password: string, mobile_no: number, emailId: string, id?: ObjectId }) {
         const db = (await MongodbInstance.getInstance()).db
@@ -41,7 +43,7 @@ export class UserService {
             if (result && result.length > 0) {
                 const userFound = new User(result[0] as any)
                 if (await userFound.comparePassword(password)) {
-                    console.log(userFound.id)
+                    // console.log(userFound.id)
                     return { sucess: true, error: '', user: { id: userFound.id } }
                 }else{
                     return { sucess: false, error: 'Incorrect Password', user: { id: '' } }

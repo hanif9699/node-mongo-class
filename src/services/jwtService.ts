@@ -1,6 +1,8 @@
 import { MongodbInstance } from "../db/db";
 import jwt from 'jsonwebtoken'
 import { ObjectId } from "mongodb";
+import { Service } from "typedi";
+@Service()
 export class JwtService {
     public async createToken(user: { id: ObjectId }) {
         const db = (await MongodbInstance.getInstance()).db

@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
+import { Service } from "typedi";
 import { JwtService } from "../services/jwtService";
-
+@Service()
 export class TokenMiddleware {
-    private jwtService: JwtService = new JwtService()
+    constructor(private jwtService: JwtService) { }
+    // private jwtService: JwtService = new JwtService()
     public async verifyToken(req: Request & { user?: string }, res: Response, next: NextFunction) {
         const authorizationHeaader = req.headers.authorization;
         if (authorizationHeaader) {
@@ -11,13 +13,13 @@ export class TokenMiddleware {
                 res.status(401).send({ message: "Invalid Token" })
             }
             const response = await this.jwtService.verifyToken(token)
-            if(response.sucess){
+            if (response.sucess) {
                 req.user = response.decoded
                 next()
-            }else{
+            } else {
                 res.status(401).send({ ...response })
             }
-            
+
         } else {
             res.status(401).send({ message: "Invalid Token" })
         }

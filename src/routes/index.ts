@@ -3,16 +3,18 @@ import { UserController } from "../controller/user";
 import { PostController } from "../controller/post";
 import { TokenMiddleware } from "../middleware/verifyToken";
 import { RateLimiter } from "../middleware/rateLimiter";
+import { Inject, Container } from "typedi";
 
 
 export class Routes {
-    private userController: UserController = new UserController()
+    // @Inject()
+    private userController: UserController = Container.get<UserController>(UserController);
     private postController: PostController = new PostController()
-    private verifyTokenMiddlware: TokenMiddleware = new TokenMiddleware()
+    private verifyTokenMiddlware: TokenMiddleware = Container.get<TokenMiddleware>(TokenMiddleware)
     private rateLimitMiddleware: RateLimiter = new RateLimiter()
     public routes(app: Application): void {
         // console.log(this,'toute')
-        app.get('/',this.rateLimitMiddleware.checkRate,
+        app.get('/', this.rateLimitMiddleware.checkRate,
             this.userController.getRoot.bind(this.userController)
         )
         app.post('/post', this.postController.createPost)

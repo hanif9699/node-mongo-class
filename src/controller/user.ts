@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
 import { ObjectId } from "mongodb";
+import { Service } from "typedi";
 import { User } from "../model/user";
 import { JwtService } from "../services/jwtService";
 import { UserService } from "../services/userService";
+@Service()
 export class UserController {
-    private userService: UserService = new UserService()
-    private jwtService: JwtService = new JwtService()
+    constructor(private userService: UserService, private jwtService: JwtService) { }
     public getRoot(req: Request, res: Response, next: NextFunction) {
         // console.log(this)
         res.status(200)
