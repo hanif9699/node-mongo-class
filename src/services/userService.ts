@@ -45,12 +45,34 @@ export class UserService {
                 if (await userFound.comparePassword(password)) {
                     // console.log(userFound.id)
                     return { sucess: true, error: '', user: { id: userFound.id } }
-                }else{
+                } else {
                     return { sucess: false, error: 'Incorrect Password', user: { id: '' } }
                 }
-            }else{
+            } else {
                 return { sucess: false, error: 'Bad Request', user: { id: '' } }
             }
         }
+    }
+    public async getUserById(userid: string) {
+        const id = new ObjectId(userid)
+        const db = (await MongodbInstance.getInstance()).db
+        const userCollection = db?.collection('users')
+        console.log('id: ', id)
+        const result = await userCollection?.findOne({ _id: id })
+        return result
+    }
+    public async getUserByEmail(emailId: string) {
+        const db = (await MongodbInstance.getInstance()).db
+        const userCollection = db?.collection('users')
+        // console.log('id: ', emailId)
+        const result = await userCollection?.find({ emailId: emailId }).toArray()
+        return result
+    }
+    public async getUserByMobile(mobile_no: string) {
+        const db = (await MongodbInstance.getInstance()).db
+        const userCollection = db?.collection('users')
+        console.log('id: ', mobile_no)
+        const result = await userCollection?.find({ mobile_no: mobile_no }).toArray()
+        return result
     }
 }

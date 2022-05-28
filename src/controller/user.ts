@@ -77,4 +77,35 @@ export class UserController {
             }
         }
     }
+    public async findUserById(req: Request, res: Response, next: NextFunction) {
+        const { id } = req.params;
+        const user = await this.userService.getUserById(id)
+        if (user) {
+            delete user.password;
+        }
+        res.send({ user })
+    }
+    public async findUserByEmail(req: Request, res: Response, next: NextFunction) {
+        const { email } = req.params;
+        const response = await this.userService.getUserByEmail(email)
+        if (response && response?.length > 0) {
+            const user = response[0]
+            delete user.password
+            res.send({ user })
+        }else{
+            res.send('User not Found !!')
+        }
+        
+    }
+    public async findUserByMobile(req: Request, res: Response, next: NextFunction) {
+        const { mobile } = req.params;
+        const response = await this.userService.getUserByMobile(mobile)
+        if (response && response?.length > 0) {
+            const user = response[0]
+            delete user.password
+            res.send({ user })
+        }else{
+            res.send('User not Found !!')
+        }
+    }
 }
