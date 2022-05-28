@@ -1,9 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import Joi from "joi";
+import { Service } from "typedi";
+import { BlogService } from "../services/blogService";
+import { UserService } from "../services/userService";
 
+@Service()
 export class BlogController {
-    public createBlog(req: Request, res: Response, next: NextFunction) {
+    constructor(private userService: UserService, private blogService: BlogService) { }
+    public async createBlog(req: Request & { user?: string }, res: Response, next: NextFunction) {
         const body = req.body;
+        const id = req.user;
         const schema = Joi.object().keys({
             title: Joi.string().required(),
             description: Joi.string().required(),
@@ -14,7 +20,9 @@ export class BlogController {
                 ...result.error.details
             })
         } else {
-           res.send('Create Blog Logic')
+            const userDetails = await this.userService.getUserById(id!)
+            const response = await this.blogService.createBlog({ ...body, author: userDetails })
+            res.send(response)
         }
     }
 }

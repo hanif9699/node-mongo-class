@@ -59,6 +59,9 @@ export class UserService {
         const userCollection = db?.collection('users')
         console.log('id: ', id)
         const result = await userCollection?.findOne({ _id: id })
+        if (result) {
+            delete result.password
+        }
         return result
     }
     public async getUserByEmail(emailId: string) {
@@ -74,5 +77,13 @@ export class UserService {
         console.log('id: ', mobile_no)
         const result = await userCollection?.find({ mobile_no: mobile_no }).toArray()
         return result
+    }
+    public async incrementTotal(id: string, increaseBy: number) {
+        const db = (await MongodbInstance.getInstance()).db
+        const userCollection = db?.collection('users')
+        const updateInfo = userCollection?.updateOne({ _id: new ObjectId(id) }, {
+            $inc: { 'total_blogs': increaseBy }
+        })
+        return updateInfo
     }
 }

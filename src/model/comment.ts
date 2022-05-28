@@ -27,7 +27,7 @@ export class BlogCommentModel {
     public blogId: ObjectId;
     public count: number;
     public page: number;
-    public comments: Array<CommentModel>;
+    public comments?: Array<CommentModel>;
     constructor({ _id, blogId, count, page, comments }: any) {
         if (_id) {
             this.id = _id;
@@ -35,6 +35,8 @@ export class BlogCommentModel {
         this.blogId = blogId;
         this.count = count;
         this.page = page;
-        this.comments = comments
+        if (comments) {
+            this.comments = comments
+        }
     }
 }

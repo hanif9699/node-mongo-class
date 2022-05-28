@@ -3,13 +3,13 @@ import { ObjectId } from "mongodb";
 export class AuthorModel {
     public id?: ObjectId;
     public name: string;
-    public profilePic: string;
-    constructor({ _id, name, profilePic }: { _id?: ObjectId, name: string, profilePic: string }) {
+    public email: string;
+    constructor({ _id, name, email }: { _id?: ObjectId, name: string, email: string }) {
         if (_id) {
             this.id = new ObjectId(_id)
         }
         this.name = name;
-        this.profilePic = profilePic;
+        this.email = email;
     }
 }
 
@@ -22,7 +22,7 @@ export class BlogModel {
     public description: string;
     public author: AuthorModel;
     public id?: ObjectId;
-    constructor({ title, numComments, numLikes, description, author, createdAt, updatedAt, _id }: { title: any, numComments: any, numLikes: any, description: any, author: AuthorModel, createdAt: Date, updatedAt: Date, _id?: ObjectId }) {
+    constructor({ title, numComments, numLikes, description, author, _id }: { title: any, numComments: any, numLikes: any, description: any, author: AuthorModel, _id?: ObjectId }) {
         this.title = title;
         this.author = new AuthorModel(author)
         this.numLikes = numLikes;
