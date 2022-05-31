@@ -45,7 +45,7 @@ export class BlogService {
                 console.log(`${updateUserInfo?.modifiedCount} modified record count`)
             }, transactionOptions)
             await session?.endSession();
-            console.log("The reservation was successfully created.");
+            console.log("The Blog was successfully created.");
             return { message: "sucess" }
         } catch (e) {
             await session?.endSession();
@@ -54,10 +54,11 @@ export class BlogService {
         }
     }
 
-    public async addComment({ blogId, comment, author }: any) {
+    public async addComment({ blogId, comment, author, replyId }: any) {
         const client = (await MongodbInstance.getInstance()).client;
         const db = (await MongodbInstance.getInstance()).db
         const blogCommentCollection = await db?.collection('blog_comments')
+        const blogCollection = await db?.collection('blogs')
         const commentData = new CommentModel({
             description: comment,
             numLikes: 0,
@@ -65,51 +66,96 @@ export class BlogService {
             author,
             _id: generateUniqueId()
         })
-        const satisfyCondition = await blogCommentCollection?.find({
-            blogId: new ObjectId(blogId),
-            count: {
-                $lt: 50
-            }
-        }).toArray()
-        if (satisfyCondition && satisfyCondition?.length > 0) {
-            const updateResult = await blogCommentCollection?.updateOne({
-                blogId: new ObjectId(blogId),
-                count: {
-                    $lt: 50
+        const session = client?.startSession()
+        const transactionOptions: any = {
+            readPreference: 'primary',
+            readConcern: { level: 'local' },
+            writeConcern: { w: 'majority' }
+        };
+        try {
+            await session?.withTransaction(async () => {
+                const satisfyCondition = await blogCommentCollection?.find({
+                    blogId: new ObjectId(blogId),
+                    count: {
+                        $lt: 50
+                    }
+                }).toArray()
+                const updateBlogRecord = await blogCollection?.updateOne({
+                    _id: new ObjectId(blogId)
+                }, {
+                    $inc: {
+                        numComments: 1
+                    },
+                    $set: {
+                        updatedAt: new Date()
+                    }
+                })
+                console.log(`${updateBlogRecord?.matchedCount} result matched with query`)
+                console.log(`${updateBlogRecord?.modifiedCount} no of record updated`)
+                if (satisfyCondition && satisfyCondition?.length > 0) {
+                    if (replyId) {
+                        const updateParentComment = await blogCommentCollection?.updateMany({
+                            blogId: new ObjectId(blogId),
+                            comment: {
+                                $exists: true,
+                            }
+                        }, {
+                            $inc: {
+                                "comment.$[elem].numReply": 1
+                            },
+                            $set: {
+                                updatedAt: new Date()
+                            }
+                        }, { arrayFilters: [{ "elem.id": replyId }] })
+                        console.log(`${updateParentComment?.matchedCount} no of matched blog and comment for this blog ${blogId}`)
+                        console.log(`${updateParentComment?.modifiedCount} no of comments updated`)
+                    }
+                    const updateResult = await blogCommentCollection?.updateOne({
+                        blogId: new ObjectId(blogId),
+                        count: {
+                            $lt: 50
+                        }
+                    }, {
+                        $addToSet: {
+                            comment: commentData
+                        },
+                        $set: {
+                            updatedAt: new Date(),
+                        },
+                        $inc: {
+                            count: 1
+                        }
+                    })
+                    console.log(`${updateResult?.matchedCount} result matched with query`)
+                    console.log(`${updateResult?.modifiedCount} no of record updated`)
+                    // return { message: "updated exiting" }
+                } else {
+                    const lastUpdatedDoc = await blogCommentCollection?.find({
+                        blogId: new ObjectId(blogId),
+                        count: {
+                            $eq: 50
+                        }
+                    }).sort({ updatedAt: -1 }).limit(1).toArray()
+                    const lastPage = lastUpdatedDoc && lastUpdatedDoc[0].page
+                    console.log(`${lastPage} Last page no`)
+                    const blogToComment = new BlogCommentModel({
+                        blogId: new ObjectId(blogId),
+                        count: 1,
+                        page: lastPage + 1,
+                        comment: [commentData]
+                    })
+                    const blogCommentRecord = await blogCommentCollection?.insertOne(blogToComment)
+                    console.log(`${blogCommentRecord?.insertedId} record created id`)
+                    // return { message: "created new bucket" }
                 }
-            }, {
-                $addToSet: {
-                    comment: commentData
-                },
-                $set: {
-                    updatedAt: new Date(),
-                },
-                $inc: {
-                    count: 1
-                }
-            })
-            console.log(`${updateResult?.matchedCount} result matched with query`)
-            console.log(`${updateResult?.modifiedCount} no of record updated`)
-            return { message: "updated exiting" }
-        } else {
-            const lastUpdatedDoc = await blogCommentCollection?.find({
-                blogId: new ObjectId(blogId),
-                count: {
-                    $eq: 50
-                }
-            }).sort({ updatedAt: -1 }).limit(1).toArray()
-            const lastPage = lastUpdatedDoc && lastUpdatedDoc[0].page
-            console.log(`${lastPage} Last page no`)
-            const blogToComment = new BlogCommentModel({
-                blogId: new ObjectId(blogId),
-                count: 1,
-                page: lastPage + 1,
-                comment: [commentData]
-            })
-            const blogCommentRecord = await blogCommentCollection?.insertOne(blogToComment)
-            console.log(`${blogCommentRecord?.insertedId} record created id`)
-            return { message: "created new bucket" }
+            }, transactionOptions)
+            await session?.endSession();
+            console.log("Added Comment Successfully");
+            return { message: "sucess" }
+        } catch (e) {
+            await session?.endSession();
+            console.log("The transaction was aborted due to an unexpected error: " + e);
+            return { message: "Unexpected Error" }
         }
     }
-
 }

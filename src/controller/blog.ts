@@ -30,7 +30,8 @@ export class BlogController {
         const id = req.user;
         const schema = Joi.object().keys({
             description: Joi.string().required(),
-            blogId: Joi.string().required()
+            blogId: Joi.string().required(),
+            replyId: Joi.string(),
         })
         const result = schema.validate(body)
         if (result.error) {
@@ -39,7 +40,7 @@ export class BlogController {
             })
         } else {
             const userDetails = await this.userService.getUserById(id!)
-            const response = await this.blogService.addComment({ blogId: body.blogId, comment: body.description, author: userDetails })
+            const response = await this.blogService.addComment({ blogId: body.blogId, comment: body.description, author: userDetails, replyId: body.replyId })
             res.send(response)
         }
     }

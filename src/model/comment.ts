@@ -29,16 +29,16 @@ export class BlogCommentModel {
     public page: number;
     public createdAt: Date;
     public updatedAt: Date;
-    public comments?: Array<CommentModel>;
-    constructor({ _id, blogId, count, page, comments }: any) {
+    public comment?: Array<CommentModel>;
+    constructor({ _id, blogId, count, page, comment }: any) {
         if (_id) {
             this.id = _id;
         }
         this.blogId = blogId;
         this.count = count;
         this.page = page;
-        if (comments) {
-            this.comments = comments
+        if (comment) {
+            this.comment = comment
         }
         this.createdAt = new Date()
         this.updatedAt = new Date()
