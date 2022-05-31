@@ -9,7 +9,7 @@ export class CommentModel {
     public replyId?: ObjectId;
     public author: AuthorModel;
     public id?: ObjectId;
-    constructor({ numReply, numLikes, description, author, createdAt, updatedAt, _id, blogId, replyId }: { numReply: any, numLikes: any, description: any, author: AuthorModel, createdAt: Date, updatedAt: Date, _id?: ObjectId, replyId?: ObjectId, blogId: ObjectId }) {
+    constructor({ numReply, numLikes, description, author, _id, replyId }: { numReply: any, numLikes: any, description: any, author: any, _id?: any, replyId?: ObjectId }) {
         this.author = new AuthorModel(author)
         this.numLikes = numLikes;
         this.numReply = numReply;

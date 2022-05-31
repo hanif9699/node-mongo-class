@@ -25,4 +25,22 @@ export class BlogController {
             res.send(response)
         }
     }
+    public async addComments(req: Request & { user?: string }, res: Response, next: NextFunction) {
+        const body = req.body;
+        const id = req.user;
+        const schema = Joi.object().keys({
+            description: Joi.string().required(),
+            blogId: Joi.string().required()
+        })
+        const result = schema.validate(body)
+        if (result.error) {
+            res.status(400).send({
+                ...result.error.details
+            })
+        } else {
+            const userDetails = await this.userService.getUserById(id!)
+            const response = await this.blogService.addComment({ blogId: body.blogId, comment: body.description, author: userDetails })
+            res.send(response)
+        }
+    }
 }

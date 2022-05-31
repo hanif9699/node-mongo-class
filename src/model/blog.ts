@@ -4,12 +4,12 @@ export class AuthorModel {
     public id?: ObjectId;
     public name: string;
     public email: string;
-    constructor({ _id, name, email }: { _id?: ObjectId, name: string, email: string }) {
+    constructor({ _id, name, emailId }: { _id?: ObjectId, name: string, emailId: string }) {
         if (_id) {
             this.id = new ObjectId(_id)
         }
         this.name = name;
-        this.email = email;
+        this.email = emailId;
     }
 }
 
@@ -22,7 +22,7 @@ export class BlogModel {
     public description: string;
     public author: AuthorModel;
     public id?: ObjectId;
-    constructor({ title, numComments, numLikes, description, author, _id }: { title: any, numComments: any, numLikes: any, description: any, author: AuthorModel, _id?: ObjectId }) {
+    constructor({ title, numComments, numLikes, description, author, _id }: { title: any, numComments: any, numLikes: any, description: any, author: any, _id?: ObjectId }) {
         this.title = title;
         this.author = new AuthorModel(author)
         this.numLikes = numLikes;

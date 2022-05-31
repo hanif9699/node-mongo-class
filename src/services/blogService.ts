@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { Service } from "typedi";
 import { MongodbInstance } from "../db/db";
 import { generateUniqueId } from "../helper";
@@ -58,13 +59,43 @@ export class BlogService {
         const db = (await MongodbInstance.getInstance()).db
         const blogCommentCollection = await db?.collection('blog_comments')
         const commentData = new CommentModel({
-            ...comment,
+            description: comment,
             numLikes: 0,
             numReply: 0,
             author,
-            id: generateUniqueId()
+            _id: generateUniqueId()
         })
-        // const
+        const satisfyCondition = await blogCommentCollection?.find({
+            blogId: new ObjectId(blogId),
+            count: {
+                $lt: 50
+            }
+        }).toArray()
+        if (satisfyCondition && satisfyCondition?.length > 0) {
+            await blogCommentCollection?.updateOne({
+                blogId: new ObjectId(blogId),
+                count: {
+                    $lt: 50
+                }
+            }, {
+                $addToSet: {
+                    comment: commentData
+                },
+                $set: {
+                    updatedAt: new Date()
+                }
+            })
+            return { message: "updated exiting" }
+        } else {
+            const blogToComment = new BlogCommentModel({
+                blogId: new ObjectId(blogId),
+                count: 0,
+                page: 0,
+                comment: [commentData]
+            })
+            const blogCommentRecord = await blogCommentCollection?.insertOne(blogToComment)
+            return { message: "created new bucket" }
+        }
     }
 
 }
