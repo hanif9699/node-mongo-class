@@ -72,7 +72,7 @@ export class BlogService {
             }
         }).toArray()
         if (satisfyCondition && satisfyCondition?.length > 0) {
-            await blogCommentCollection?.updateOne({
+            const updateResult = await blogCommentCollection?.updateOne({
                 blogId: new ObjectId(blogId),
                 count: {
                     $lt: 50
@@ -82,18 +82,32 @@ export class BlogService {
                     comment: commentData
                 },
                 $set: {
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
+                },
+                $inc: {
+                    count: 1
                 }
             })
+            console.log(`${updateResult?.matchedCount} result matched with query`)
+            console.log(`${updateResult?.modifiedCount} no of record updated`)
             return { message: "updated exiting" }
         } else {
+            const lastUpdatedDoc = await blogCommentCollection?.find({
+                blogId: new ObjectId(blogId),
+                count: {
+                    $eq: 50
+                }
+            }).sort({ updatedAt: -1 }).limit(1).toArray()
+            const lastPage = lastUpdatedDoc && lastUpdatedDoc[0].page
+            console.log(`${lastPage} Last page no`)
             const blogToComment = new BlogCommentModel({
                 blogId: new ObjectId(blogId),
-                count: 0,
-                page: 0,
+                count: 1,
+                page: lastPage + 1,
                 comment: [commentData]
             })
             const blogCommentRecord = await blogCommentCollection?.insertOne(blogToComment)
+            console.log(`${blogCommentRecord?.insertedId} record created id`)
             return { message: "created new bucket" }
         }
     }

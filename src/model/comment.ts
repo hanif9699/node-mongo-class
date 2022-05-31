@@ -27,6 +27,8 @@ export class BlogCommentModel {
     public blogId: ObjectId;
     public count: number;
     public page: number;
+    public createdAt: Date;
+    public updatedAt: Date;
     public comments?: Array<CommentModel>;
     constructor({ _id, blogId, count, page, comments }: any) {
         if (_id) {
@@ -38,5 +40,7 @@ export class BlogCommentModel {
         if (comments) {
             this.comments = comments
         }
+        this.createdAt = new Date()
+        this.updatedAt = new Date()
     }
 }
