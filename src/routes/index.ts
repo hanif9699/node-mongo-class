@@ -25,6 +25,7 @@ export class Routes {
         app.post('/v1/create', this.verifyTokenMiddlware.verifyToken.bind(this.verifyTokenMiddlware), this.userController.protectedFunction.bind(this.userController))
         app.post('/v1/createblog', this.verifyTokenMiddlware.verifyToken.bind(this.verifyTokenMiddlware), this.blogController.createBlog.bind(this.blogController))
         app.post('/v1/addComment', this.verifyTokenMiddlware.verifyToken.bind(this.verifyTokenMiddlware), this.blogController.addComments.bind(this.blogController))
+        app.post('/v1/editComment', this.verifyTokenMiddlware.verifyToken.bind(this.verifyTokenMiddlware), this.blogController.editComment.bind(this.blogController))
         app.get('/v1/user/id/:id', this.userController.findUserById.bind(this.userController))
         app.get('/v1/user/email/:email', this.userController.findUserByEmail.bind(this.userController))
         app.get('/v1/user/mobile/:mobile', this.userController.findUserByMobile.bind(this.userController))

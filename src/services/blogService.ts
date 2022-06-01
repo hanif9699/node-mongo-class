@@ -158,4 +158,43 @@ export class BlogService {
             return { message: "Unexpected Error" }
         }
     }
+    public async editComment({ blogId, commentId, text, authorId }: any) {
+        const client = (await MongodbInstance.getInstance()).client;
+        const db = (await MongodbInstance.getInstance()).db
+        const blogCommentCollection = await db?.collection('blog_comments')
+        console.log('Blog Id: ' + blogId)
+        console.log('comment id: ' + commentId)
+        console.log('comment text: ' + text)
+        const updateResult = await blogCommentCollection?.updateMany({
+            blogId: new ObjectId(blogId),
+            comment: {
+                $exists: 1,
+                $elemMatch: {
+                    "id": commentId,
+                    "author.id": authorId
+                }
+            }
+        }, {
+            $set: {
+                "comment.$[elem].description": text,
+                "comment.$[elem].updatedAt": new Date(),
+                updatedAt: new Date()
+            }
+            // $inc: {
+            //     "comment.$[elem].numReply": 1
+            // }
+        }, {
+            arrayFilters: [{ "elem.id": commentId, "elem.author.id": authorId }]
+        })
+        console.log(`${updateResult?.acknowledged}`)
+        console.log(`${updateResult?.matchedCount} result matched with query`)
+        console.log(`${updateResult?.modifiedCount} no of record updated`)
+        if (updateResult && updateResult?.matchedCount <= 0) {
+            return { message: "Comment doesnt exist with this user" }
+        }
+        if (updateResult && updateResult.modifiedCount <= 0) {
+            return { message: "Unable to modify the comment.Please try again" }
+        }
+        return { message: "Successfully updated the comment" }
+    }
 }
