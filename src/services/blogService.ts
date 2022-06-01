@@ -165,7 +165,7 @@ export class BlogService {
         console.log('Blog Id: ' + blogId)
         console.log('comment id: ' + commentId)
         console.log('comment text: ' + text)
-        const updateResult = await blogCommentCollection?.updateMany({
+        const updateResult = await blogCommentCollection?.updateOne({
             blogId: new ObjectId(blogId),
             comment: {
                 $exists: 1,
@@ -180,9 +180,6 @@ export class BlogService {
                 "comment.$[elem].updatedAt": new Date(),
                 updatedAt: new Date()
             }
-            // $inc: {
-            //     "comment.$[elem].numReply": 1
-            // }
         }, {
             arrayFilters: [{ "elem.id": commentId, "elem.author.id": authorId }]
         })
@@ -196,5 +193,22 @@ export class BlogService {
             return { message: "Unable to modify the comment.Please try again" }
         }
         return { message: "Successfully updated the comment" }
+    }
+    public async getCommentByBlog(blogId: string, skip: number, limit: number) {
+        const client = (await MongodbInstance.getInstance()).client;
+        const db = (await MongodbInstance.getInstance()).db
+        const blogCommentCollection = await db?.collection('blog_comments')
+        const commentRecord = await blogCommentCollection?.find({
+            blogId: new ObjectId(blogId)
+        }, {
+            projection: {
+                count: 1,
+                comment: {
+                    $slice: [skip, limit]
+                }
+            }
+        }).toArray()
+        // commentRecord
+        return { msg: commentRecord }
     }
 }

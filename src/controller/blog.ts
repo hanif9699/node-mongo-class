@@ -64,4 +64,25 @@ export class BlogController {
             res.send(response)
         }
     }
+    public async getCommentByBlog(req: Request & { user?: string }, res: Response, next: NextFunction) {
+        const { blogId } = req.params;
+        const { skip, limit } = req.query;
+        // console.log(req.query)
+        const id = req.user;
+        const schema = Joi.object().keys({
+            skip: Joi.string().required(),
+            blogId: Joi.string().required(),
+            limit: Joi.string().required(),
+        })
+        const result = schema.validate({ blogId, skip, limit })
+        if (result.error) {
+            res.status(400).send({
+                ...result.error.details
+            })
+        } else {
+            // const userDetails = await this.userService.getUserById(id!)
+            const response = await this.blogService.getCommentByBlog(blogId, Number(skip), Number(limit))
+            res.send(response)
+        }
+    }
 }
